@@ -1,30 +1,44 @@
-public class User {
-    private String name;
+public class User implements Comparable<User> {
+    private String fullName;
     private String requestedSkill;
+    private boolean wasPinged;
 
-    // Constructor
-    public User(String name, String requestedSkill) {
-        this.name = name;
+    public User(String fullName, String requestedSkill) {
+        this.fullName = fullName;
         this.requestedSkill = requestedSkill;
+        this.wasPinged = false;
     }
 
-    // Getter for name
-    public String getName() {
-        return name;
+    public String getFullName() {
+        return fullName;
     }
 
-    // Getter for requested skill
     public String getRequestedSkill() {
         return requestedSkill;
     }
 
-    // Setter for requested skill
     public void setRequestedSkill(String requestedSkill) {
         this.requestedSkill = requestedSkill;
     }
 
-    // Display user info
+    public boolean wasPinged() {
+        return wasPinged;
+    }
+
+    public void setPinged(boolean status) {
+        this.wasPinged = status;
+    }
+
+    public String getLastName() {
+        String[] parts = fullName.trim().split(" ");
+        return parts.length > 1 ? parts[parts.length - 1] : fullName;
+    }
+
     public void displayInfo() {
-        System.out.println(name + " needs help with: " + requestedSkill);
+        System.out.println(fullName + " needs help with: " + requestedSkill);
+    }
+
+    public int compareTo(User other) {
+        return this.getLastName().compareToIgnoreCase(other.getLastName());
     }
 }
