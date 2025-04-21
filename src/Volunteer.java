@@ -4,12 +4,16 @@ public class Volunteer implements Comparable<Volunteer> {
     private String fullName;
     private String skillOffered;
     private String qualifications;
+    private String email;
+    private String phone;
     private ArrayList<Integer> ratings;
 
-    public Volunteer(String fullName, String skillOffered, String qualifications) {
+    public Volunteer(String fullName, String skillOffered, String qualifications, String email, String phone) {
         this.fullName = fullName;
         this.skillOffered = skillOffered;
         this.qualifications = qualifications;
+        this.email = email;
+        this.phone = phone;
         this.ratings = new ArrayList<>();
     }
 
@@ -23,6 +27,14 @@ public class Volunteer implements Comparable<Volunteer> {
 
     public String getQualifications() {
         return qualifications;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getPhone() {
+        return phone;
     }
 
     public void addRating(int stars) {
@@ -41,23 +53,23 @@ public class Volunteer implements Comparable<Volunteer> {
     }
 
     public void displayInfo() {
-        System.out.println("Name: " + fullName);
-        System.out.println("Skill: " + skillOffered);
-        System.out.println("Qualifications: " + qualifications);
-        System.out.printf("Avg. Rating: %.2f (%d ratings)\n", getAverageRating(), ratings.size());
-    }
-
-    // Sort alphabetically by last name
-    @Override
-    public int compareTo(Volunteer other) {
-        String thisLastName = this.getLastName();
-        String otherLastName = other.getLastName();
-        return thisLastName.compareToIgnoreCase(otherLastName);
+        System.out.println("👤 Name: " + fullName);
+        System.out.println("🔧 Skill: " + skillOffered);
+        System.out.println("📋 Qualifications: " + qualifications);
+        if (!email.isEmpty()) System.out.println("📧 Email: " + email);
+        if (!phone.isEmpty()) System.out.println("📱 Phone: " + phone);
+        System.out.printf("⭐ Avg. Rating: %.2f (%d ratings)\n", getAverageRating(), ratings.size());
+        System.out.println("--------------------------------------");
     }
 
     public String getLastName() {
         String[] parts = fullName.trim().split(" ");
         return parts.length > 1 ? parts[parts.length - 1] : fullName;
+    }
+
+    @Override
+    public int compareTo(Volunteer other) {
+        return this.getLastName().compareToIgnoreCase(other.getLastName());
     }
 }
 

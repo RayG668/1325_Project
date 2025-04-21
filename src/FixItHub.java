@@ -59,27 +59,30 @@ public class FixItHub {
 
     public void searchVolunteers(String skill) {
         boolean found = false;
+        HashSet<String> allSkills = new HashSet<>(); // Collect available skills
+
         for (Volunteer v : volunteers) {
+            allSkills.add(v.getSkillOffered());
             if (v.getSkillOffered().equalsIgnoreCase(skill)) {
                 v.displayInfo();
                 System.out.println();
                 found = true;
             }
         }
-        if (!found) {
-            System.out.println("No volunteers found with that skill.");
-        }
-    }
 
-    public void rateVolunteer(String name, int rating) {
-        for (Volunteer v : volunteers) {
-            if (v.getFullName().equalsIgnoreCase(name)) {
-                v.addRating(rating);
-                System.out.println("Rated " + name + " with " + rating + " stars.");
-                return;
+        if (!found) {
+            System.out.println("⚠️ No volunteers found with that skill.");
+
+            // Suggest all skills
+            if (!allSkills.isEmpty()) {
+                System.out.println("💡 Available volunteer skills:");
+                for (String s : allSkills) {
+                    System.out.println("- " + s);
+                }
+            } else {
+                System.out.println("📭 No volunteers are registered yet.");
             }
         }
-        System.out.println("Volunteer not found.");
     }
 
     public static void main(String[] args) {
@@ -105,24 +108,74 @@ public class FixItHub {
 
             switch (choice) {
                 case 1 -> {
-                    System.out.println("\uD83D\uDCDD Volunteer Registration");
+                    System.out.println("📝 Volunteer Registration");
                     System.out.print("Full Name: ");
-                    String name = sc.nextLine();
+                    String vname = sc.nextLine();
                     System.out.print("Skill Offered: ");
-                    String skill = sc.nextLine();
+                    String vskill = sc.nextLine();
                     System.out.print("Qualifications: ");
-                    String qual = sc.nextLine();
-                    hub.addVolunteer(new Volunteer(name, skill, qual));
-                    System.out.println("✅ Thank you, " + name + "! You're now a Fix-It volunteer.");
+                    String vqual = sc.nextLine();
+                    System.out.print("Email (or leave blank): ");
+                    String vemail = sc.nextLine();
+                    System.out.print("Phone (or leave blank): ");
+                    String vphone = sc.nextLine();
+
+                    if (vemail.isEmpty() && vphone.isEmpty()) {
+                        System.out.println("⚠️ Please provide at least an email or phone number.");
+                        break;
+                    }
+
+                    hub.addVolunteer(new Volunteer(vname, vskill, vqual, vemail, vphone));
+                    System.out.println("✅ Thank you, " + vname + "! You're now a Fix-It volunteer.");
+
                 }
                 case 2 -> {
-                    System.out.println("\uD83C\uDD98 Repair Help Request");
+                    System.out.println("🆘 Repair Help Request");
                     System.out.print("Your Full Name: ");
                     String name = sc.nextLine();
-                    System.out.print("What skill you need help with?: ");
+                    System.out.print("What skill do you need help with? ");
                     String skill = sc.nextLine();
-                    hub.addUser(new User(name, skill));
-                    System.out.println("✅ Request received! We’ll notify you if someone becomes available.");
+
+                    User temp = new User(name, skill, "", "");
+                    
+                    User existing = null;
+                    for (User u : hub.users) {
+                        if (u.matches(temp)) {
+                            existing = u;
+                            break;
+                        }
+                    }
+
+                    User newUser;
+
+                    if (existing != null) {
+                        System.out.println("👋 Welcome back, " + name + "! We remembered your last request.");
+                        newUser = existing;
+                        newUser.setPinged(false); // reset ping status to allow re-ping
+                    } else {
+                        // Get contact info only if new user
+                        System.out.print("Email (or leave blank): ");
+                        String email = sc.nextLine();
+                        System.out.print("Phone (or leave blank): ");
+                        String phone = sc.nextLine();
+
+                        if (email.isEmpty() && phone.isEmpty()) {
+                            System.out.println("⚠️ Please provide at least an email or phone number.");
+                            break;
+                        }
+
+                        newUser = new User(name, skill, email, phone);
+                        hub.addUser(newUser);
+                    }
+
+// Show matches if available
+                    if (hub.skillExists(skill)) {
+                        System.out.println("✅ Good news! Volunteers available for your request:");
+                        hub.showMatchingVolunteers(skill);
+                    } else {
+                        System.out.println("📝 No help available right now. We’ll notify you if someone joins!");
+                    }
+
                 }
                 case 3 -> hub.showVolunteerMenu(sc);
                 case 4 -> hub.showAllUsers();
@@ -154,7 +207,7 @@ public class FixItHub {
         }
     }
 
-    public User serachUserByName(String name) {
+    public User searchUserByName(String name) {
         for (User u : users) {
             if (u.getFullName().equalsIgnoreCase(name)) {
                 return u;
@@ -164,21 +217,36 @@ public class FixItHub {
     }
 
     public void editUserRequest(Scanner sc) {
-        System.out.print("Enter your full name:" );
+        if (users.isEmpty()) {
+            System.out.println("⚠️ No users have made requests yet.");
+            return;
+        }
+
+        System.out.print("Enter your full name: ");
         String name = sc.nextLine();
 
-        User user = serachUserByName(name);
-        if (user != null) {
-            System.out.println("Current skill needed: " + user.getRequestedSkill());
-            System.out.print("Enter new skill you need help with: ");
-            String newSkill = sc.nextLine();
-            user.setRequestedSkill(newSkill);
-            user.setPinged(false);
-            System.out.println("Your request has been updated");
-        } else {
-            System.out.println("User not found.");
+        User user = searchUserByName(name);
+
+        if (user == null) {
+            System.out.println("⚠️ User not found. Please check the name and try again.");
+
+            // 📋 Suggest available users
+            System.out.println("📋 Users with requests:");
+            for (User u : users) {
+                System.out.println("- " + u.getFullName());
+            }
+
+            return;
         }
+
+        System.out.println("Current skill needed: " + user.getRequestedSkill());
+        System.out.print("Enter new skill you need help with: ");
+        String newSkill = sc.nextLine();
+        user.setRequestedSkill(newSkill);
+        user.setPinged(false); // reset ping
+        System.out.println("✅ Your request has been updated.");
     }
+
 
     public void showVolunteerMenu(Scanner sc) {
         boolean inVolunteerMenu = true;
@@ -189,13 +257,13 @@ public class FixItHub {
             System.out.println("2. \uD83D\uDCCB View All Volunteers");
             System.out.println("3. ⭐ Rate a Volunteer");
             System.out.println("4. \uD83D\uDD19 Return to Main Menu");
-            System.out.println("Choose an option (1-4): ");
+            System.out.print("Choose an option (1-4): ");
             int choice = sc.nextInt();
             sc.nextLine();
 
             switch (choice) {
                 case 1 -> {
-                    System.out.println("Enter skill to search: ");
+                    System.out.print("Enter skill to search: ");
                     String skill = sc.nextLine();
                     searchVolunteers(skill);
                 }
@@ -235,8 +303,8 @@ public class FixItHub {
                      System.out.println("✅ You rated " + name + " with " + stars + " stars.");
                 }
                 case 4 -> {
-
                     inVolunteerMenu = false;
+                    System.out.println();
                     System.out.println("Returning to Main Menu.");
                 }
                 default -> System.out.println("⚠\uFE0F Invalid option. Please choose 1-4");
@@ -244,4 +312,20 @@ public class FixItHub {
         }
     }
 
+    public boolean skillExists(String skill) {
+        for (Volunteer v : volunteers) {
+            if (v.getSkillOffered().equalsIgnoreCase(skill)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void showMatchingVolunteers(String skill) {
+        for (Volunteer v : volunteers) {
+            if (v.getSkillOffered().equalsIgnoreCase(skill)) {
+                v.displayInfo();
+            }
+        }
+    }
 }
