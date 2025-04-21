@@ -41,10 +41,10 @@ public class Volunteer implements Comparable<Volunteer> {
     }
 
     public void displayInfo() {
-        System.out.println("Name: " + fullName);
-        System.out.println("Skill: " + skillOffered);
-        System.out.println("Qualifications: " + qualifications);
-        System.out.printf("Avg. Rating: %.2f (%d ratings)\n", getAverageRating(), ratings.size());
+        System.out.println("\uD83D\uDC64 Name: " + fullName);
+        System.out.println("\uD83D\uDD27 Skill: " + skillOffered);
+        System.out.println("\uD83D\uDCCB Qualifications: " + qualifications);
+        System.out.printf("⭐ Avg. Rating: %.2f (%d ratings)\n", getAverageRating(), ratings.size());
     }
 
     // Sort alphabetically by last name
