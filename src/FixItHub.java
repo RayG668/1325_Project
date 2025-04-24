@@ -137,7 +137,7 @@ public class FixItHub {
                     String skill = sc.nextLine();
 
                     User temp = new User(name, skill, "", "");
-                    
+
                     User existing = null;
                     for (User u : hub.users) {
                         if (u.matches(temp)) {
@@ -184,7 +184,7 @@ public class FixItHub {
                     running = false;
                     System.out.println("\uD83D\uDC4B Thanks for using Fix-It Hub!");
                 }
-                default -> System.out.println("⚠\uFE0F Invalid option. Please choose 1-8");
+                default -> System.out.println("⚠\uFE0F Invalid option. Please choose 1-6");
             }
             System.out.println();
         }
