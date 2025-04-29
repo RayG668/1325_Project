@@ -1,11 +1,12 @@
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.*;
+import java.io.*;
 
 public class FixItHub {
     private ArrayList<User> users;
     private ArrayList<Volunteer> volunteers;
-    private HashMap<String, String> missedRequests; // name → skill needed
+    private HashMap<String, String> missedRequests;
 
     public FixItHub() {
         users = new ArrayList<>();
@@ -87,6 +88,11 @@ public class FixItHub {
 
     public static void main(String[] args) {
         FixItHub hub = new FixItHub();
+
+        //Load file data
+        hub.loadUsersFromFile("users.txt");
+        hub.loadVolunteersFromFile("volunteers.txt");
+
         Scanner sc = new Scanner(System.in);
         boolean running = true;
 
@@ -181,6 +187,9 @@ public class FixItHub {
                 case 4 -> hub.showAllUsers();
                 case 5 -> hub.editUserRequest(sc);
                 case 6 -> {
+                    //File saves
+                    hub.saveUsersToFile("users.txt");
+                    hub.saveVolunteersToFile("volunteers.txt");
                     running = false;
                     System.out.println("\uD83D\uDC4B Thanks for using Fix-It Hub!");
                 }
@@ -328,4 +337,57 @@ public class FixItHub {
             }
         }
     }
+
+    //Save user file creation
+    public void saveUsersToFile(String filename) {
+        try (PrintWriter writer = new PrintWriter(new FileWriter(filename))) {
+            for (User u : users) {
+                writer.println(u.getFullName() + ";" + u.getRequestedSkill() + ";" + u.getEmail() + ";" + u.getPhone());
+            }
+        } catch (IOException e) {
+            System.out.println("❌ Error saving users: " + e.getMessage());
+        }
+    }
+
+    //Load users into file
+    public void loadUsersFromFile(String filename) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.split(";");
+                if (parts.length >= 4) {
+                    users.add(new User(parts[0], parts[1], parts[2], parts[3]));
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("📭 No users file found or failed to load.");
+        }
+    }
+
+    //Save volunteers file creation
+    public void saveVolunteersToFile(String filename) {
+        try (PrintWriter writer = new PrintWriter(new FileWriter(filename))) {
+            for (Volunteer v : volunteers) {
+                writer.println(v.getFullName() + ";" + v.getSkillOffered() + ";" + v.getQualifications() + ";" + v.getEmail() + ";" + v.getPhone());
+            }
+        } catch (IOException e) {
+            System.out.println("❌ Error saving volunteers: " + e.getMessage());
+        }
+    }
+
+    //Save volunteers into file
+    public void loadVolunteersFromFile(String filename) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.split(";");
+                if (parts.length >= 5) {
+                    volunteers.add(new Volunteer(parts[0], parts[1], parts[2], parts[3], parts[4]));
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("📭 No volunteers file found or failed to load.");
+        }
+    }
+
 }
