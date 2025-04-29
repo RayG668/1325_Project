@@ -6,6 +6,7 @@ import java.io.*;
 public class FixItHub {
     private ArrayList<User> users;
     private ArrayList<Volunteer> volunteers;
+    //Prevents the same user from being recorded when re-requesting help
     private HashMap<String, String> missedRequests;
 
     public FixItHub() {
